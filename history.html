@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>History – VeritasNet AI</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+body{
+    background:#000;
+    color:#fff;
+    overflow-x:hidden;
+}
+
+/* ===== AI CANVAS ===== */
+#aiCanvas{
+    position:fixed;
+    inset:0;
+    z-index:-3;
+}
+
+.overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.45);
+    z-index:-2;
+}
+
+/* ===== NAVBAR ===== */
+.navbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:18px 50px;
+    backdrop-filter:blur(12px);
+    background:rgba(255,255,255,0.06);
+    border-bottom:1px solid rgba(255,255,255,0.12);
+}
+
+.navbar h1{
+    font-size:22px;
+    background:linear-gradient(90deg,#00f5ff,#00ff9c);
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+}
+
+.navbar a{
+    margin-left:30px;
+    color:#ccc;
+    text-decoration:none;
+}
+
+.navbar a.active,
+.navbar a:hover{
+    color:#00ff9c;
+}
+
+/* ===== HEADER ===== */
+.history-header{
+    text-align:center;
+    padding:90px 20px 50px;
+}
+
+.history-header h2{
+    font-size:44px;
+}
+
+.history-header p{
+    color:#ccc;
+    margin-top:10px;
+}
+
+/* ===== STATS ===== */
+.history-stats{
+    display:flex;
+    justify-content:center;
+    gap:30px;
+    margin-top:35px;
+    flex-wrap:wrap;
+}
+
+.stat-item{
+    background:rgba(255,255,255,0.1);
+    backdrop-filter:blur(16px);
+    border-radius:18px;
+    padding:20px 30px;
+    min-width:180px;
+    border:1px solid rgba(255,255,255,0.2);
+}
+
+.stat-number{
+    font-size:32px;
+    font-weight:700;
+    color:#00ff9c;
+}
+
+.stat-label{
+    color:#ccc;
+    margin-top:5px;
+}
+
+/* ===== HISTORY LIST ===== */
+.history-container{
+    max-width:1100px;
+    margin:40px auto 80px;
+    padding:0 30px;
+    display:grid;
+    gap:25px;
+}
+
+.history-card{
+    display:grid;
+    grid-template-columns:60px 1fr 120px;
+    gap:20px;
+    align-items:center;
+    background:rgba(255,255,255,0.1);
+    backdrop-filter:blur(16px);
+    border-radius:20px;
+    padding:20px;
+    border:1px solid rgba(255,255,255,0.2);
+    transition:.35s;
+}
+
+.history-card:hover{
+    transform:translateY(-6px);
+    box-shadow:0 0 45px rgba(0,255,180,.4);
+}
+
+.history-icon{
+    font-size:28px;
+    text-align:center;
+}
+
+.history-icon.safe{ color:#00ff9c; }
+.history-icon.scam{ color:#ff6b6b; }
+
+.history-content{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+}
+
+.history-type{
+    font-weight:600;
+}
+
+.type-badge{
+    font-size:12px;
+    padding:3px 10px;
+    border-radius:20px;
+    margin-left:8px;
+}
+
+.type-badge.message{ background:#00f5ff; color:#000; }
+.type-badge.url{ background:#00ff9c; color:#000; }
+
+.history-reason{
+    color:#ccc;
+    font-size:14px;
+}
+
+.history-time{
+    font-size:12px;
+    color:#888;
+}
+
+.history-confidence{
+    text-align:center;
+}
+
+.confidence-value{
+    font-size:22px;
+    font-weight:700;
+}
+
+.confidence-value.safe{ color:#00ff9c; }
+.confidence-value.scam{ color:#ff6b6b; }
+
+.confidence-label{
+    font-size:12px;
+    color:#aaa;
+}
+
+/* ===== EMPTY STATE ===== */
+.empty-state{
+    text-align:center;
+    margin:120px auto;
+}
+
+.empty-icon{
+    font-size:60px;
+}
+
+.btn-secondary{
+    display:inline-block;
+    margin-top:20px;
+    padding:12px 26px;
+    border-radius:25px;
+    background:linear-gradient(135deg,#00f5ff,#00ff9c);
+    color:#000;
+    text-decoration:none;
+    font-weight:600;
+}
+
+/* ===== FOOTER ===== */
+.footer{
+    text-align:center;
+    padding:30px 20px;
+    color:#aaa;
+    border-top:1px solid rgba(255,255,255,0.1);
+}
+
+/* Responsive */
+@media(max-width:700px){
+    .history-card{
+        grid-template-columns:1fr;
+        text-align:center;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- AI BACKGROUND -->
+<canvas id="aiCanvas"></canvas>
+<div class="overlay"></div>
+
+<nav class="navbar">
+    <h1>🌐 VeritasNet-AI</h1>
+    <div>
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="history.html" class="active">History</a>
+    </div>
+</nav>
+
+<section class="history-header">
+    <h2>📊 Scan History</h2>
+    <p>Your AI-verified scam detection records</p>
+
+    <div class="history-stats">
+        <div class="stat-item">
+            <div class="stat-number" id="totalScans">0</div>
+            <div class="stat-label">Total Scans</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number" id="threatsFound">0</div>
+            <div class="stat-label">Threats Found</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-number" id="safeScans">0</div>
+            <div class="stat-label">Safe</div>
+        </div>
+    </div>
+</section>
+
+<section class="history-container" id="historyContainer"></section>
+
+<div class="empty-state" id="emptyState" style="display:none;">
+    <div class="empty-icon">📭</div>
+    <h3>No Scan History Yet</h3>
+    <p>Start scanning to generate AI insights.</p>
+    <a href="index.html" class="btn-secondary">Start Scanning</a>
+</div>
+
+<footer class="footer">
+    <p>🌐 ScamShield AI - Protecting You From Online Scams</p>
+    <p class="footer-sub">Made with ❤️ for a safer internet</p>
+</footer>
+
+<script>
+/* ===== HISTORY LOGIC (UNCHANGED) ===== */
+const history = JSON.parse(localStorage.getItem("scamHistory")) || [];
+const container = document.getElementById("historyContainer");
+const emptyState = document.getElementById("emptyState");
+
+document.getElementById("totalScans").textContent = history.length;
+document.getElementById("threatsFound").textContent =
+    history.filter(i=>i.result==="scam").length;
+document.getElementById("safeScans").textContent =
+    history.filter(i=>i.result==="safe").length;
+
+if(history.length===0){
+    emptyState.style.display="block";
+}else{
+    history.forEach(item=>{
+        const card=document.createElement("div");
+        card.className="history-card";
+        card.innerHTML=`
+            <div class="history-icon ${item.result}">${item.result==="safe"?"✅":"⚠️"}</div>
+            <div class="history-content">
+                <div class="history-type">
+                    ${item.result==="safe"?"Safe":"Scam Detected"}
+                    <span class="type-badge ${item.type}">${item.type}</span>
+                </div>
+                <div class="history-reason">${item.reason||"No details"}</div>
+                <div class="history-time">${item.time}</div>
+            </div>
+            <div class="history-confidence">
+                <div class="confidence-value ${item.result}">${item.confidence}%</div>
+                <div class="confidence-label">Confidence</div>
+            </div>`;
+        container.appendChild(card);
+    });
+}
+
+/* ===== AI CANVAS SAME AS MAIN PAGE ===== */
+const canvas=document.getElementById("aiCanvas");
+const ctx=canvas.getContext("2d");
+let w,h;
+function resize(){w=canvas.width=innerWidth;h=canvas.height=innerHeight;}
+window.onresize=resize;resize();
+
+const nodes=[];
+for(let i=0;i<120;i++){
+    nodes.push({x:Math.random()*w,y:Math.random()*h,
+        vx:(Math.random()-.5)*1.2,vy:(Math.random()-.5)*1.2});
+}
+
+function animate(){
+    ctx.clearRect(0,0,w,h);
+    nodes.forEach((n,i)=>{
+        n.x+=n.vx;n.y+=n.vy;
+        if(n.x<0||n.x>w)n.vx*=-1;
+        if(n.y<0||n.y>h)n.vy*=-1;
+        ctx.fillStyle="#00ffcc";
+        ctx.beginPath();ctx.arc(n.x,n.y,2.5,0,Math.PI*2);ctx.fill();
+        nodes.slice(i+1).forEach(m=>{
+            const d=Math.hypot(n.x-m.x,n.y-m.y);
+            if(d<140){
+                ctx.strokeStyle=`rgba(0,255,200,${1-d/140})`;
+                ctx.beginPath();ctx.moveTo(n.x,n.y);ctx.lineTo(m.x,m.y);ctx.stroke();
+            }
+        });
+    });
+    requestAnimationFrame(animate);
+}
+animate();
+</script>
+
+</body>
+</html>
